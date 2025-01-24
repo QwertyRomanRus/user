@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package user_v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "user/pkg/user_v1/user_v1;user_v1";
+
+service UserServiceV1 {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc List(ListRequest) returns (ListResponse);
+  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+}
+
+message CreateRequest {
+  UserInfo info = 1;
+}
+
+message CreateResponse {
+  UserInfo user = 1;
+}
+
+message GetRequest {
+  int64 id = 1;
+}
+
+message GetResponse {
+  User user = 1;
+}
+
+message UpdateRequest {
+  UpdateUserInfo info = 1;
+}
+
+message UpdateResponse {
+  User user = 1;
+}
+
+message ListRequest {
+  google.protobuf.Int64Value limit = 1;
+}
+
+message ListResponse {
+  repeated User user = 1;
+}
+
+message DeleteRequest {
+  int64 id = 1;
+}
+
+message UpdateUserInfo {
+  google.protobuf.StringValue first_name = 1;
+  google.protobuf.StringValue last_name = 2;
+  google.protobuf.StringValue email = 3;
+  google.protobuf.Int64Value age = 4; // todo в миграции smallint, может быть ошибка
+}
+
+message User {
+  int64 id = 1;
+  UserInfo info = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message UserInfo {
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+  int64 age = 4; // todo в миграции smallint, может быть ошибка
+}
