@@ -9,6 +9,8 @@ import (
 	"net"
 	"user/internal/api/v1/user"
 	"user/internal/config"
+	userRepo "user/internal/repository/user"
+	userSrv "user/internal/service/user"
 	"user/pkg/user_v1"
 )
 
@@ -22,15 +24,33 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env: ", err)
 	}
-	initPg(&ctx)
+	pgConf, err := config.NewPGConfig()
+	if err != nil {
+		log.Fatal("Error loading pg config: ", err)
+	}
+
+	pgCon, err := pgxpool.Connect(ctx, pgConf.GetDsn())
+	if err != nil {
+		log.Fatal("Error connecting to database: ", err)
+	}
+	defer pgCon.Close()
+
+	err = pgCon.Ping(ctx)
+	if err != nil {
+		log.Fatal("Error pinging database: ", err)
+	}
 
 	l, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatal("Error grpc listening on port: ", err)
 	}
-	defer l.Close()
 
-	userApi := user.Implementation{}
+	defer l.Close()
+	// init user
+	userRepository := userRepo.NewRepository(pgCon)
+	userService := userSrv.NewService(userRepository)
+	userApi := user.Implementation{UserService: userService}
+
 	s := grpc.NewServer()
 	user_v1.RegisterUserServiceV1Server(s, &userApi)
 
@@ -44,24 +64,24 @@ func main() {
 	//initGrpc(&ctx)
 }
 
-func initPg(ctx *context.Context) {
-	pgConf, err := config.NewPGConfig()
-	if err != nil {
-		log.Fatal("Error loading pg config: ", err)
-	}
-
-	pgCon, err := pgxpool.Connect(*ctx, pgConf.GetDsn())
-	if err != nil {
-		log.Fatal("Error connecting to database: ", err)
-	}
-	defer pgCon.Close() // todo мб неправильно будет закрываться, проверить
-
-	err = pgCon.Ping(*ctx)
-	if err != nil {
-		log.Fatal("Error pinging database: ", err)
-	}
-
-}
+//func initPg(ctx *context.Context) {
+//	pgConf, err := config.NewPGConfig()
+//	if err != nil {
+//		log.Fatal("Error loading pg config: ", err)
+//	}
+//
+//	pgCon, err := pgxpool.Connect(*ctx, pgConf.GetDsn())
+//	if err != nil {
+//		log.Fatal("Error connecting to database: ", err)
+//	}
+//	defer pgCon.Close() // todo мб неправильно будет закрываться, проверить
+//
+//	err = pgCon.Ping(*ctx)
+//	if err != nil {
+//		log.Fatal("Error pinging database: ", err)
+//	}
+//
+//}
 
 //func initGrpc(ctx *context.Context) {
 //

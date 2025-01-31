@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE "user" (
+CREATE TABLE "users" (
     id serial,
     first_name VARCHAR(255) not null,
     last_name VARCHAR(255) not null,
@@ -16,5 +16,5 @@ CREATE TABLE "user" (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE "user"
+DROP TABLE "users"
 -- +goose StatementEnd

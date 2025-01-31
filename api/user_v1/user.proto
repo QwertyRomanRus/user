@@ -21,7 +21,7 @@ message CreateRequest {
 }
 
 message CreateResponse {
-  UserInfo user = 1;
+  User user = 1;
 }
 
 message GetRequest {
