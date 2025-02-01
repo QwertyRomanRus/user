@@ -8,6 +8,7 @@ import (
 	modelRepo "user/internal/repository/user/model"
 )
 
+// todo прокинуть limit из request
 func (r *repo) List(ctx context.Context) ([]*model.User, error) {
 	sql, args, err := sq.
 		Select(idColumn, firstNameColumn, lastNameColumn, emailColumn, ageColumn).
@@ -33,10 +34,6 @@ func (r *repo) List(ctx context.Context) ([]*model.User, error) {
 		}
 
 		users = append(users, convertor.ToUserFromRepo(&userRepo))
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
 	}
 
 	return users, nil
