@@ -13,6 +13,8 @@ const (
 	lastNameColumn  = "last_name"
 	emailColumn     = "email"
 	ageColumn       = "age"
+
+	limit = 10
 )
 
 type repo struct {
